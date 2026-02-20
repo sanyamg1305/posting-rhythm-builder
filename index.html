@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myntmore Posting Rhythm Builder</title>
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            background-color: #000000;
+            color: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .accent-border {
+            border-color: #FFC947;
+        }
+
+        .accent-text {
+            color: #FFC947;
+        }
+
+        .accent-bg {
+            background-color: #FFC947;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #111;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+
+        @media print {
+            body {
+                background-color: white !important;
+                color: black !important;
+            }
+
+            .bg-\[\#0A0A0A\] {
+                background-color: #f9f9f9 !important;
+                border: 1px solid #ddd !important;
+            }
+
+            .accent-text,
+            .accent-bg {
+                color: black !important;
+                background-color: #eee !important;
+            }
+
+            button,
+            footer {
+                display: none !important;
+            }
+
+            header {
+                display: block !important;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>
