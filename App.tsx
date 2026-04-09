@@ -100,7 +100,7 @@ const App: React.FC = () => {
     <div className="min-h-screen pb-20 selection:bg-[#FFC947] selection:text-black">
       {/* Header */}
       <header className="relative pt-16 pb-12 px-6 text-center">
-        <img src="/logo.png" alt="Myntmore Logo" className="absolute top-6 left-6 w-32 md:w-40" />
+        <img src="/logo.png" alt="Myntmore Logo" className="absolute top-6 left-6 w-[120px]" />
         
         {step !== 'lead' && (
           <div className="absolute top-6 right-6 z-20">
