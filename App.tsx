@@ -121,9 +121,6 @@ const App: React.FC = () => {
         <p className="text-gray-300 text-sm md:text-base mb-6 max-w-xl mx-auto font-medium">
           Helps you figure the right posting frequency and schedule for LinkedIn based on your goals.
         </p>
-        <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto font-light">
-          Deterministic content strategy for founders and high-performance B2B operators.
-        </p>
       </header>
 
       <main className="max-w-4xl mx-auto px-6">
