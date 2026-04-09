@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { generateStrategy } from './services/geminiService';
-import { AppState, PostingStrategy, FounderLifestyle, Tone, ContentStrength } from './types';
+import { AppState, PostingStrategy, FounderLifestyle, Tone, ContentStrength, LeadData } from './types';
 import { LIFESTYLE_OPTIONS, TONE_OPTIONS, STRENGTH_OPTIONS, DEFAULT_APP_STATE } from './constants';
 
 // Initialize Supabase
@@ -10,13 +10,13 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://dmpllxjtcahobg
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_xDxY4hl0MVWgB6xqayaIMQ_34naEIF7';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-type FlowStep = 'input' | 'lead' | 'results';
+type FlowStep = 'lead' | 'input' | 'results';
 
 const App: React.FC = () => {
   const [formData, setFormData] = useState<AppState>(DEFAULT_APP_STATE);
-  const [leadData, setLeadData] = useState({ name: '', email: '', contact: '' });
+  const [leadData, setLeadData] = useState<LeadData>({ name: '', companyName: '', companyEmail: '', companyWebsite: '', linkedinUrl: '' });
   const [strategy, setStrategy] = useState<PostingStrategy | null>(null);
-  const [step, setStep] = useState<FlowStep>('input');
+  const [step, setStep] = useState<FlowStep>('lead');
   const [loading, setLoading] = useState(false);
   const [savingLead, setSavingLead] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,16 +37,15 @@ const App: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await generateStrategy(formData);
+      const result = await generateStrategy(formData, leadData);
       setStrategy(result);
-      setStep('lead');
+      setStep('results');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       console.error(err);
       if (err.message === "MISSING_API_KEY" || err.message?.includes("API key")) {
         setError("Configuration Error: API Key is missing. Please add VITE_GEMINI_API_KEY to your Netlify Environment Variables.");
       } else {
-        // Show the specific error message from the API (e.g. "Quota exceeded", "API key not valid")
         setError(`Failed to build strategy: ${err.message || 'Unknown error'}`);
       }
     } finally {
@@ -56,8 +55,8 @@ const App: React.FC = () => {
 
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!leadData.name || !leadData.email || !leadData.contact) {
-      setError("All fields are required to unlock your strategy.");
+    if (!leadData.name || !leadData.companyName || !leadData.companyEmail || !leadData.companyWebsite || !leadData.linkedinUrl) {
+      setError("All fields are required.");
       return;
     }
 
@@ -70,26 +69,24 @@ const App: React.FC = () => {
         .insert([
           {
             name: leadData.name,
-            email: leadData.email,
-            contact: leadData.contact,
-            icp: formData.icp,
-            lifestyle: formData.lifestyle,
-            tone: formData.tone,
+            company_name: leadData.companyName,
+            company_email: leadData.companyEmail,
+            company_website: leadData.companyWebsite,
+            linkedin_url: leadData.linkedinUrl,
             created_at: new Date().toISOString()
           }
         ]);
 
       if (dbError) throw dbError;
 
-      setStep('results');
+      setStep('input');
       setTimeout(() => {
-        document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 100);
     } catch (err: any) {
       console.error("Supabase Error:", err);
-      // Alert user but allow them to proceed
-      setError("Note: Could not save your details to the database (Check console). Displaying strategy anyway.");
-      setStep('results');
+      setError("Note: Could not save your details to the database. Proceeding.");
+      setStep('input');
     } finally {
       setSavingLead(false);
     }
@@ -104,6 +101,20 @@ const App: React.FC = () => {
       {/* Header */}
       <header className="relative pt-16 pb-12 px-6 text-center">
         <img src="/logo.png" alt="Myntmore Logo" className="absolute top-6 left-6 w-32 md:w-40" />
+        
+        {step !== 'lead' && (
+          <div className="absolute top-6 right-6 z-20">
+            <a
+              href="https://calendly.com/founder-myntmore/1-hour-meeting"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white text-black hover:bg-[#FFC947] transition-colors px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg"
+            >
+              Book a Strategy Call
+            </a>
+          </div>
+        )}
+
         <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 uppercase leading-none">
           Myntmore <span className="accent-text">Rhythm</span><br />Builder
         </h1>
@@ -113,7 +124,7 @@ const App: React.FC = () => {
       </header>
 
       <main className="max-w-4xl mx-auto px-6">
-        {/* Step 1: Input Panel */}
+        {/* Step 2: Input Panel */}
         {step === 'input' && (
           <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-8 md:p-12 shadow-2xl relative overflow-hidden animate-in fade-in duration-500">
             <div className="absolute top-0 left-0 w-full h-1 accent-bg opacity-50"></div>
@@ -193,17 +204,17 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Step 2: Lead Form */}
+        {/* Step 1: Lead Form */}
         {step === 'lead' && (
           <div className="max-w-lg mx-auto bg-[#0A0A0A] border border-[#FFC947] rounded-2xl p-8 md:p-12 shadow-[0_0_50px_rgba(255,201,71,0.1)] animate-in zoom-in-95 duration-500">
-            <h2 className="text-2xl font-black text-center mb-2 uppercase tracking-tight">Unlock Your Strategy</h2>
+            <h2 className="text-2xl font-black text-center mb-2 uppercase tracking-tight">Tell Us About You</h2>
             <p className="text-gray-400 text-center mb-8 text-sm leading-relaxed">
-              Your posting rhythm is ready. Enter your details to view and download your full operating system.
+              Enter your details to get started.
             </p>
 
             <form onSubmit={handleLeadSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Full Name</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Name</label>
                 <input
                   required
                   type="text"
@@ -214,24 +225,46 @@ const App: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Business Email</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Company Name</label>
                 <input
                   required
-                  type="email"
+                  type="text"
                   className="w-full bg-black border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#FFC947] outline-none transition-colors"
-                  value={leadData.email}
-                  onChange={(e) => setLeadData({ ...leadData, email: e.target.value })}
+                  value={leadData.companyName}
+                  onChange={(e) => setLeadData({ ...leadData, companyName: e.target.value })}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Contact Number</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Company Email</label>
                 <input
                   required
-                  type="tel"
+                  type="email"
                   className="w-full bg-black border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#FFC947] outline-none transition-colors"
-                  value={leadData.contact}
-                  onChange={(e) => setLeadData({ ...leadData, contact: e.target.value })}
+                  value={leadData.companyEmail}
+                  onChange={(e) => setLeadData({ ...leadData, companyEmail: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Company Website</label>
+                <input
+                  required
+                  type="url"
+                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#FFC947] outline-none transition-colors"
+                  value={leadData.companyWebsite}
+                  onChange={(e) => setLeadData({ ...leadData, companyWebsite: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Personal LinkedIn URL</label>
+                <input
+                  required
+                  type="url"
+                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#FFC947] outline-none transition-colors"
+                  value={leadData.linkedinUrl}
+                  onChange={(e) => setLeadData({ ...leadData, linkedinUrl: e.target.value })}
                 />
               </div>
 
@@ -243,7 +276,7 @@ const App: React.FC = () => {
                   : 'accent-bg text-black hover:opacity-90 active:scale-[0.98]'
                   }`}
               >
-                {savingLead ? 'Unlocking...' : 'View My Strategy'}
+                {savingLead ? 'Submitting...' : 'Continue'}
               </button>
               {error && <p className="mt-4 text-red-500 text-center text-xs">{error}</p>}
             </form>

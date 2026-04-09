@@ -1,8 +1,8 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { AppState, PostingStrategy } from "../types";
+import { AppState, PostingStrategy, LeadData } from "../types";
 
-export const generateStrategy = async (state: AppState): Promise<PostingStrategy> => {
+export const generateStrategy = async (state: AppState, lead?: LeadData): Promise<PostingStrategy> => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
   if (!apiKey) {
     console.error("API Key is missing. Please set VITE_GEMINI_API_KEY in your environment variables.");
@@ -14,6 +14,8 @@ export const generateStrategy = async (state: AppState): Promise<PostingStrategy
     Generate a comprehensive B2B LinkedIn/X posting strategy for a founder.
     
     INPUTS:
+    Founder Name: ${lead?.name || "Founder"}
+    Company Name: ${lead?.companyName || "Company"}
     Founder Lifestyle: ${state.lifestyle}
     Target ICP: ${state.icp}
     Content Strengths: ${state.strengths.join(", ")}

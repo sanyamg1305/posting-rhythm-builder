@@ -45,6 +45,14 @@ export interface PostingStrategy {
   ctas: string[];
 }
 
+export interface LeadData {
+  name: string;
+  companyName: string;
+  companyEmail: string;
+  companyWebsite: string;
+  linkedinUrl: string;
+}
+
 export interface AppState {
   lifestyle: FounderLifestyle;
   icp: string;
