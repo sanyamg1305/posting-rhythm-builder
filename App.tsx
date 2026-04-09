@@ -118,6 +118,9 @@ const App: React.FC = () => {
         <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 uppercase leading-none">
           Myntmore <span className="accent-text">Rhythm</span><br />Builder
         </h1>
+        <p className="text-gray-300 text-sm md:text-base mb-6 max-w-xl mx-auto font-medium">
+          Helps you figure the right posting frequency and schedule for LinkedIn based on your goals.
+        </p>
         <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto font-light">
           Deterministic content strategy for founders and high-performance B2B operators.
         </p>
